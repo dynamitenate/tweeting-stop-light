@@ -62,17 +62,13 @@ fn request_loop() {
     // repetitive stuff
     let client = Client::new();
     let keys = get_keys_from_file("keys.json").unwrap();
-    let user_key = &keys.user_key;
-    let user_secret_key = &keys.user_secret_key;
-    let api_key = &keys.api_key;
-    let api_secret_key = &keys.api_secret_key;
 
     // actual loop
     let mut request_time;
     let mut request_number = 1;
     loop {
         request_time = Instant::now();
-        let response = send_request(&client, api_key, api_secret_key, user_key, user_secret_key);
+        let response = send_request(&client, &keys);
         let json = response_to_json(&response[..]);
         if !json.is_none() {
             let new_twitter_mention = get_mention_from_json(json.unwrap());
@@ -141,13 +137,7 @@ fn response_to_json(response: &str) -> Option<JsonValue> {
     return None;
 }
 
-fn send_request(
-    client: &Client,
-    api_key: &str,
-    api_secret_key: &str,
-    user_key: &str,
-    user_secret_key: &str
-) -> String {
+fn send_request(client: &Client, keys: &Keys) -> String {
     let url = "https://api.twitter.com/1.1/statuses/mentions_timeline.json";
     let mut params_map: HashMap<&str, Cow<'_, str>> = HashMap::new();
     params_map.insert("count", Cow::from("1"));
@@ -156,8 +146,8 @@ fn send_request(
         .header(Authorization(oauth1::authorize(
             "GET",
             url,
-            &Token::new(api_key, api_secret_key),
-            Some(&Token::new(user_key, user_secret_key)),
+            &Token::new(&keys.api_key, &keys.api_secret_key),
+            Some(&Token::new(&keys.user_key, &keys.user_secret_key)),
             Some(params_map),
         )))
         .query(&[
