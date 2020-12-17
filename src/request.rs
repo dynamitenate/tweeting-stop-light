@@ -1,6 +1,3 @@
-extern crate oauth1;
-extern crate reqwest;
-
 use super::keys::Keys;
 
 use oauth1::Token;
