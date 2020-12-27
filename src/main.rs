@@ -1,24 +1,23 @@
-extern crate oauth1;
-extern crate reqwest;
-extern crate chrono;
-extern crate serde;
-
 mod keys;
 mod request;
 mod response;
 mod logger;
 
-use reqwest::Client;
+//use reqwest::Client;
 use std::time::{Duration, Instant};
 use std::thread::sleep;
+use log4rs;
+use log;
 
 fn main() {
-    request_loop()
+    log4rs::init_file("log4rs.yaml", Default::default()).unwrap();
+    log::info!("booting up");
+    request_loop();
 }
 
 fn request_loop() {
     // repetitive stuff
-    let client = Client::new();
+    let client = reqwest::Client::new();
     let keys = keys::get_keys_from_file("keys.json").unwrap();
 
     // actual loop
