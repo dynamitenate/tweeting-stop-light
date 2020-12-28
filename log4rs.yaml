@@ -1,21 +1,22 @@
-refresh_rate: 30 seconds
+refresh_rate: 15 seconds
 appenders:
   stdout:
     kind: console
-  requests:
-    kind: file
-    path: "log/requests.log"
     encoder:
-      pattern: "{d} - {m}{n}"
+      pattern: "{d} - {M} - {m}{n}"
+  file:
+    kind: rolling_file
+    path: "tweets.log"
+    encoder:
+      pattern: "{d} - {M} - {m}{n}"
+    policy:
+      trigger:
+        kind: size
+        limit: 10 mb
+      roller:
+        kind: delete
 root:
   level: info
   appenders:
     - stdout
-loggers:
-  app::backend::db:
-    level: info
-  app::requests:
-    level: info
-    appenders:
-      - requests
-    additive: false
+    - file
