@@ -3,12 +3,12 @@ appenders:
   stdout:
     kind: console
     encoder:
-      pattern: "{d} - {M} - {m}{n}"
+      pattern: "{d(%m-%d-%Y %H:%M:%S)} - {l} - {h({m})}{n}"
   file:
     kind: rolling_file
     path: "tweets.log"
     encoder:
-      pattern: "{d} - {M} - {m}{n}"
+      pattern: "{d(%m-%d-%Y %H:%M:%S)} - {l} - {m}{n}"
     policy:
       trigger:
         kind: size
