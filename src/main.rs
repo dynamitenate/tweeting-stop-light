@@ -2,6 +2,8 @@ mod keys;
 mod request;
 mod response;
 
+use keys::Keys;
+use reqwest::blocking::Client;
 use std::time::{Duration, Instant};
 use std::thread::sleep;
 use log4rs;
@@ -15,16 +17,22 @@ fn main() {
 
 fn request_loop() {
     // repetitive stuff
-    let client = reqwest::Client::new();
+    let client = Client::new();
     info!("Retrieving keys from file...");
     let keys = keys::get_keys_from_file("keys.json").unwrap();
 
     // actual loop
-    let mut request_time;
     loop {
-        request_time = Instant::now();
-        let response = request::send_request(&client, &keys);
-        let json = response::response_to_json(&response);
+        request_iteration(&client, &keys);
+        sleep(Duration::new(15, 0));
+    }
+}
+
+fn request_iteration(client: &Client, keys: &Keys) {
+    let request_time = Instant::now();
+    let response = request::send_request(&client, &keys);
+    if !response.is_none() {
+        let json = response::response_to_json(&response.unwrap());
         if !json.is_none() {
             let new_twitter_mention = response::get_mention_from_json(json.unwrap());
             if !new_twitter_mention.is_none(){
@@ -34,8 +42,9 @@ fn request_loop() {
                 info!("{}: {}", format!("{:?}", request_time.elapsed()), "No new tweets!");
             }
         } else {
-            error!("{}: {}", format!("{:?}", request_time.elapsed()), "Could not parse JSON!");            
+            error!("{}: {}", format!("{:?}", request_time.elapsed()), "Could not parse JSON!");
         }
-        sleep(Duration::new(15, 0));
+    } else {
+        error!("{}: {}", format!("{:?}", request_time.elapsed()), "Could make the request!");
     }
 }
