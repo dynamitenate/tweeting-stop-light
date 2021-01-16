@@ -10,18 +10,26 @@ use log4rs;
 use log::{info, error};
 
 fn main() {
+    // Start logging from config file
     log4rs::init_file("log4rs.yaml", Default::default()).unwrap();
     info!("Starting up...");
-    request_loop();
-}
 
-fn request_loop() {
-    // repetitive stuff
-    let client = Client::new();
+    // Create request client
+    info!("Creating TLS client...");
+    let client = request::get_tls_client();
+
+    // Retrieve keys from JSON file
     info!("Retrieving keys from file...");
     let keys = keys::get_keys_from_file("keys.json").unwrap();
 
-    // actual loop
+    // Start request loop
+    if !client.is_none() {
+        request_loop(&client.unwrap(), &keys);
+    }
+}
+
+fn request_loop(client: &Client, keys: &Keys) {
+
     loop {
         request_iteration(&client, &keys);
         sleep(Duration::new(15, 0));

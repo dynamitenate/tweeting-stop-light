@@ -5,6 +5,16 @@ use reqwest::header::{AUTHORIZATION};
 use std::collections::HashMap;
 use std::borrow::Cow;
 
+pub fn get_tls_client() -> Option<Client> {
+    let client_builder = reqwest::blocking::Client::builder()
+        .use_rustls_tls();
+    let client = match client_builder.build() {
+        Ok(client) => Some(client),
+        Err(_error) => None
+    };
+    return client;
+}
+
 pub fn send_request(client: &Client, keys: &Keys) -> Option<String> {
     let url = "https://api.twitter.com/1.1/statuses/mentions_timeline.json";
     let mut params_map: HashMap<&str, Cow<'_, str>> = HashMap::new();
