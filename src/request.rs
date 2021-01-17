@@ -5,7 +5,7 @@ use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use std::collections::HashMap;
 use std::borrow::Cow;
 
-fn get_oauth_header(method: &str, url: &str, keys: &Keys, params: &[(&str, &str)]) -> HeaderMap {
+pub fn get_oauth_header(method: &str, url: &str, keys: &Keys, params: &[(&str, &str)]) -> HeaderMap {
     let mut params_map: HashMap<&str, Cow<'_, str>> = HashMap::new();
     for (key, value) in params {
         params_map.insert(key, Cow::from(&value[..]));
@@ -22,9 +22,12 @@ fn get_oauth_header(method: &str, url: &str, keys: &Keys, params: &[(&str, &str)
     return headers;
 }
 
-pub fn get_tls_client() -> Option<Client> {
-    let client_builder = reqwest::blocking::Client::builder()
+pub fn get_tls_client(oauth_header: Option<HeaderMap>) -> Option<Client> {
+    let mut client_builder = reqwest::blocking::Client::builder()
         .use_rustls_tls();
+    if !oauth_header.is_none() {
+        client_builder = client_builder.default_headers(oauth_header.unwrap());
+    }
     let client = match client_builder.build() {
         Ok(client) => Some(client),
         Err(_error) => None

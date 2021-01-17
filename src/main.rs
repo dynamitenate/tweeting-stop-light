@@ -16,7 +16,7 @@ fn main() {
 
     // Create request client
     info!("Creating TLS client...");
-    let client = request::get_tls_client();
+    let client = request::get_tls_client(None);
 
     // Retrieve keys from JSON file
     info!("Retrieving keys from file...");
