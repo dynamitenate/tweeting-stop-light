@@ -29,7 +29,6 @@ fn main() {
 }
 
 fn request_loop(client: &Client, keys: &Keys) {
-
     loop {
         request_iteration(&client, &keys);
         sleep(Duration::new(15, 0));
@@ -44,15 +43,21 @@ fn request_iteration(client: &Client, keys: &Keys) {
         if !json.is_none() {
             let new_twitter_mention = response::get_mention_from_json(json.unwrap());
             if !new_twitter_mention.is_none(){
-                let message = format!("{:?}", &new_twitter_mention.unwrap().light_color);
-                info!("{}: {}", format!("{:?}", request_time.elapsed()), &message);
+                let mention = &new_twitter_mention.unwrap();
+                let user = &mention.from_user;
+                let message = &mention.light_color.unwrap();
+                let time = request_time.elapsed();
+                info!("({:?}) @{}: #{:?}", &time, &user, &message);
             } else {
-                info!("{}: {}", format!("{:?}", request_time.elapsed()), "No new tweets!");
+                let time = request_time.elapsed();
+                info!("({:?}) {}", &time, "No new tweets!");
             }
         } else {
-            error!("{}: {}", format!("{:?}", request_time.elapsed()), "Could not parse JSON!");
+            let time = request_time.elapsed();
+            error!("({:?}) {}", &time, "Could not parse JSON!");
         }
     } else {
-        error!("{}: {}", format!("{:?}", request_time.elapsed()), "Could make the request!");
+        let time = request_time.elapsed();
+        error!("({:?}) {}", &time, "Could make the request!");
     }
 }

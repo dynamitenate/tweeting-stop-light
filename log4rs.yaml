@@ -16,7 +16,7 @@ appenders:
       roller:
         kind: delete
 root:
-  level: info
+  level: debug
   appenders:
     - stdout
     - file

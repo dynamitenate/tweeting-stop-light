@@ -1,5 +1,6 @@
 use serde_json::Value as JsonValue;
 use std::str::FromStr;
+use log::{debug, trace};
 
 #[derive(Debug, Clone, Copy)]
 pub enum LightColor {
@@ -24,12 +25,14 @@ impl FromStr for LightColor {
 pub struct TwitterMention {
     pub tweet_id: u64,
     pub tweet_date: String,
+    pub from_user: String,
     pub light_color: Option<LightColor>
 }
 
 pub fn response_to_json(response: &str) -> Option<JsonValue> {
     let json: serde_json::Result<JsonValue> = serde_json::from_str(response);
     if json.is_ok() {
+        trace!("{:#?}", json);
         return Some(json.unwrap());
     }
     return None;
@@ -38,6 +41,7 @@ pub fn response_to_json(response: &str) -> Option<JsonValue> {
 pub fn get_mention_from_json(json: JsonValue) -> Option<TwitterMention> {
     let has_new_tweets = json.is_array() && json.as_array().unwrap().len() != 0;
     if has_new_tweets {
+        debug!("There are new tweets from response.");
         let hashtags: Vec<&str> = json[0]["entities"]["hashtags"].as_array().unwrap()
             .iter()
             .map(|h| h["text"].as_str().unwrap())
@@ -45,9 +49,11 @@ pub fn get_mention_from_json(json: JsonValue) -> Option<TwitterMention> {
         return Some(TwitterMention {
             tweet_id: json[0]["id"].as_u64().unwrap(),
             tweet_date: String::from(json[0]["created_at"].as_str().unwrap()),
+            from_user: String::from(json[0]["user"]["screen_name"].as_str().unwrap()),
             light_color: get_light_color(&hashtags)
         })
     }
+    debug!("No new tweets from response.");
     return None;
 }
 
@@ -67,7 +73,9 @@ fn get_light_color(hashtags: &Vec<&str>) -> Option<LightColor> {
         .collect();
     let first_hashtag = valid_hashtags.first();
     if first_hashtag.is_none() {
+        debug!("No valid hashtags in response.");
         return None;
     }
+    debug!("First valid hashtag is \"{:?}\".", first_hashtag.unwrap());
     return Some(first_hashtag.unwrap().clone());
 }
