@@ -45,9 +45,14 @@ fn request_iteration(client: &Client, keys: &Keys) {
             if !new_twitter_mention.is_none(){
                 let mention = &new_twitter_mention.unwrap();
                 let user = &mention.from_user;
-                let message = &mention.light_color.unwrap();
-                let time = request_time.elapsed();
-                info!("({:?}) @{}: #{:?}", &time, &user, &message);
+                if !&mention.light_color.is_none() {
+                    let message = &mention.light_color.unwrap();
+                    let time = request_time.elapsed();
+                    info!("({:?}) @{}: #{:?}", &time, &user, &message);
+                } else {
+                    let time = request_time.elapsed();
+                    info!("({:?}) @{}: No valid hashtags!", &time, &user);
+                }
             } else {
                 let time = request_time.elapsed();
                 info!("({:?}) {}", &time, "No new tweets!");
