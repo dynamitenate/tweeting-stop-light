@@ -8,6 +8,8 @@ use std::time::{Duration, Instant};
 use std::thread::sleep;
 use log4rs;
 use log::{info, error};
+use rust_gpiozero::LED;
+use std::collections::HashMap;
 
 fn main() {
     // Start logging from config file
@@ -22,15 +24,23 @@ fn main() {
     info!("Retrieving keys from file...");
     let keys = keys::get_keys_from_file("keys.json").unwrap();
 
+    // Get LEDs
+    let mut leds = HashMap::new();
+    leds.insert("Red", LED::new(14));
+    leds.insert("Yellow", LED::new(17));
+    leds.insert("Green", LED::new(18));
+
     // Start request loop
     if !client.is_none() {
-        request_loop(&client.unwrap(), &keys);
+        request_loop(&client.unwrap(), &keys, &leds);
     }
 }
 
-fn request_loop(client: &Client, keys: &Keys) {
+fn request_loop(client: &Client, keys: &Keys, leds: &HashMap<&str, LED>) {
     loop {
+        &leds["Red"].on();
         request_iteration(&client, &keys);
+        &leds["Red"].off();
         sleep(Duration::new(15, 0));
     }
 }
@@ -63,6 +73,6 @@ fn request_iteration(client: &Client, keys: &Keys) {
         }
     } else {
         let time = request_time.elapsed();
-        error!("({:?}) {}", &time, "Could make the request!");
+        error!("({:?}) {}", &time, "Could not make the request!");
     }
 }
