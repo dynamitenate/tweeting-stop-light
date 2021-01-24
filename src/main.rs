@@ -10,6 +10,7 @@ use log4rs;
 use log::{info, error};
 use rust_gpiozero::LED;
 use std::collections::HashMap;
+use response::LightColor;
 
 fn main() {
     // Start logging from config file
@@ -26,9 +27,9 @@ fn main() {
 
     // Get LEDs
     let mut leds = HashMap::new();
-    leds.insert("Red", LED::new(14));
-    leds.insert("Yellow", LED::new(17));
-    leds.insert("Green", LED::new(18));
+    leds.insert(LightColor::Red, LED::new(18));
+    leds.insert(LightColor::Yellow, LED::new(14));
+    leds.insert(LightColor::Green, LED::new(17));
 
     // Start request loop
     if !client.is_none() {
@@ -36,16 +37,14 @@ fn main() {
     }
 }
 
-fn request_loop(client: &Client, keys: &Keys, leds: &HashMap<&str, LED>) {
+fn request_loop(client: &Client, keys: &Keys, leds: &HashMap<LightColor, LED>) {
     loop {
-        &leds["Red"].on();
-        request_iteration(&client, &keys);
-        &leds["Red"].off();
+        request_iteration(&client, &keys, &leds);
         sleep(Duration::new(15, 0));
     }
 }
 
-fn request_iteration(client: &Client, keys: &Keys) {
+fn request_iteration(client: &Client, keys: &Keys, leds: &HashMap<LightColor, LED>) {
     let request_time = Instant::now();
     let response = request::send_request(&client, &keys);
     if !response.is_none() {
@@ -57,6 +56,7 @@ fn request_iteration(client: &Client, keys: &Keys) {
                 let user = &mention.from_user;
                 if !&mention.light_color.is_none() {
                     let message = &mention.light_color.unwrap();
+                    update_stoplight(&message, leds);
                     let time = request_time.elapsed();
                     info!("({:?}) @{}: #{:?}", &time, &user, &message);
                 } else {
@@ -75,4 +75,11 @@ fn request_iteration(client: &Client, keys: &Keys) {
         let time = request_time.elapsed();
         error!("({:?}) {}", &time, "Could not make the request!");
     }
+}
+
+fn update_stoplight(light_color: &LightColor, leds: &HashMap<LightColor, LED>) {
+    &leds[&LightColor::Red].off();
+    &leds[&LightColor::Yellow].off();
+    &leds[&LightColor::Green].off();
+    &leds[light_color].on();
 }

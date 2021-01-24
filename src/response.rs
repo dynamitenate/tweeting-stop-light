@@ -2,7 +2,7 @@ use serde_json::Value as JsonValue;
 use std::str::FromStr;
 use log::{debug, trace};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum LightColor {
     Green,
     Yellow,
