@@ -1,8 +1,11 @@
 use serde_json::Value as JsonValue;
 use std::str::FromStr;
-use log::{debug, trace};
+use log::{debug, trace, error};
+use serde::{Serialize, Deserialize};
+use std::fs::OpenOptions;
+use std::io::Write;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum LightColor {
     Green,
     Yellow,
@@ -21,12 +24,36 @@ impl FromStr for LightColor {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TwitterMention {
     pub tweet_id: u64,
     pub tweet_date: String,
     pub from_user: String,
     pub light_color: Option<LightColor>
+}
+
+pub fn send_mention_to_file(mention: &TwitterMention) {
+    let file = OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .create(true)
+        .open("most_recent_tweet.json");
+    if file.is_ok() {
+        let reader = serde_json::to_string_pretty(&mention);
+        if reader.is_ok() {
+            let serialized = &reader.unwrap();
+            let result = file.unwrap().write_all(serialized.as_bytes());
+            if result.is_ok() {
+                trace!("Saved twitter mention to file:\n{:#?}", serialized);
+            } else {
+                error!("Could not write serialized tweet to file!");
+            }
+        } else {
+            error!("Could not serialize most recent tweet!");
+        }
+    } else {
+        error!("Could open file to write most recent tweet to file!");
+    }
 }
 
 pub fn response_to_json(response: &str) -> Option<JsonValue> {
