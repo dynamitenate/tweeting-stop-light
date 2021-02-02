@@ -27,9 +27,9 @@ fn main() {
 
     // Get LEDs
     let mut leds = HashMap::new();
-    leds.insert(LightColor::Red, LED::new(18));
-    leds.insert(LightColor::Yellow, LED::new(14));
-    leds.insert(LightColor::Green, LED::new(17));
+    leds.insert(LightColor::Red, LED::new(26));
+    leds.insert(LightColor::Yellow, LED::new(20));
+    leds.insert(LightColor::Green, LED::new(21));
 
     // Start request loop
     if !client.is_none() {
