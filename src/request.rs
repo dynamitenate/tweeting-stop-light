@@ -4,7 +4,7 @@ use reqwest::blocking::Client;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use std::collections::HashMap;
 use std::borrow::Cow;
-use log::{debug};
+use log::{debug, trace};
 
 pub fn get_oauth_header(method: &str, url: &str, keys: &Keys, params: &[(&str, &str)]) -> HeaderMap {
     let mut params_map: HashMap<&str, Cow<'_, str>> = HashMap::new();
@@ -36,16 +36,19 @@ pub fn get_tls_client(oauth_header: Option<HeaderMap>) -> Option<Client> {
     return client;
 }
 
-pub fn send_request(client: &Client, keys: &Keys) -> Option<String> {
+pub fn send_request(client: &Client, keys: &Keys, since_id: &Option<String>) -> Option<String> {
     let url = "https://api.twitter.com/1.1/statuses/mentions_timeline.json";
+    let since_id = if since_id.is_none() { "1".to_string() } else { since_id.as_ref().unwrap()[..].to_string() };
     let params = &[
-        ("count", "1")
+        ("count", "1"),
+        ("since_id", &since_id[..])
     ];
     let header = get_oauth_header("GET", url, &keys, params);
     let request = client.get(url)
         .headers(header)
         .query(params);
     debug!("Executing request...");
+    trace!("Executing request with params:\n {:#?}", params);
     let response_text = match request.send() {
         Ok(response) => {
             match response.text() {

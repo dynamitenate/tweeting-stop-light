@@ -2,4 +2,5 @@
 /log
 *.log
 keys.json
+most_recent_tweet.json
 .DS_Store
