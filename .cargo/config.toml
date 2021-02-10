@@ -1,2 +1,8 @@
+[build]
+target = "armv7-unknown-linux-gnueabihf"
+
+# The following cross-compile linker only works for Windows!
+# Can be installed by downloading "raspberry-gcc8.3.0.exe" from https://gnutoolchains.com/raspberry/
+
 [target.armv7-unknown-linux-gnueabihf]
 linker = "arm-linux-gnueabihf-gcc-8.exe"
