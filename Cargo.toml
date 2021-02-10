@@ -4,7 +4,8 @@ version = "0.1.0"
 authors = ["Nathan Raine <nraine18@gmail.com>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[build]
+target = "armv7-unknown-linux-gnueabihf"
 
 [dependencies]
 reqwest = { version = "0.11.0", default-features = false, features = ["blocking", "rustls-tls"] }
@@ -15,4 +16,4 @@ serde_derive = "1.0"
 chrono = "0.4.19"
 log4rs = "0.8.3"
 log = "0.4.11"
-# rust_gpiozero = "0.2.0"
+rust_gpiozero = "0.2.0"

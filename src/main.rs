@@ -8,7 +8,7 @@ use std::time::{Duration, Instant};
 use std::thread::sleep;
 use log4rs;
 use log::{info, error};
-//use rust_gpiozero::LED;
+use rust_gpiozero::LED;
 use std::collections::HashMap;
 use response::LightColor;
 
@@ -26,10 +26,10 @@ fn main() {
     let keys = keys::get_keys_from_file("keys.json").unwrap();
 
     // Get LEDs
-    // let mut leds = HashMap::new();
-    // leds.insert(LightColor::Red, LED::new(26));
-    // leds.insert(LightColor::Yellow, LED::new(20));
-    // leds.insert(LightColor::Green, LED::new(21));
+    let mut leds = HashMap::new();
+    leds.insert(LightColor::Red, LED::new(26));
+    leds.insert(LightColor::Yellow, LED::new(20));
+    leds.insert(LightColor::Green, LED::new(21));
 
     // Get initial tweet
     info!("Retrieving initial tweet from file...");
@@ -38,23 +38,23 @@ fn main() {
         let tweet = initial_tweet.unwrap();
         let light_color = &tweet.light_color.unwrap();
         info!("Setting initial tweet from >>> ({:?}) @{}: #{:?}", &tweet.tweet_date, &tweet.from_user, light_color);
-        //update_stoplight(&light_color, leds);
+        update_stoplight(&light_color, &leds);
     }
 
     // Start request loop
     if !client.is_none() {
-        request_loop(&client.unwrap(), &keys);//, &leds);
+        request_loop(&client.unwrap(), &keys, &leds);
     }
 }
 
-fn request_loop(client: &Client, keys: &Keys) {//}, leds: &HashMap<LightColor, LED>) {
+fn request_loop(client: &Client, keys: &Keys, leds: &HashMap<LightColor, LED>) {
     loop {
-        request_iteration(&client, &keys);//, &leds);
+        request_iteration(&client, &keys, &leds);
         sleep(Duration::new(15, 0));
     }
 }
 
-fn request_iteration(client: &Client, keys: &Keys) {//}, leds: &HashMap<LightColor, LED>) {
+fn request_iteration(client: &Client, keys: &Keys, leds: &HashMap<LightColor, LED>) {
     let request_time = Instant::now();
     let response = request::send_request(&client, &keys);
     if !response.is_none() {
@@ -66,7 +66,7 @@ fn request_iteration(client: &Client, keys: &Keys) {//}, leds: &HashMap<LightCol
                 let user = &mention.from_user;
                 if !&mention.light_color.is_none() {
                     let message = &mention.light_color.unwrap();
-                    //update_stoplight(&message, leds);
+                    update_stoplight(&message, leds);
                     response::send_mention_to_file(&mention);
                     let time = request_time.elapsed();
                     info!("({:?}) @{}: #{:?}", &time, &user, &message);
@@ -88,9 +88,9 @@ fn request_iteration(client: &Client, keys: &Keys) {//}, leds: &HashMap<LightCol
     }
 }
 
-// fn update_stoplight(light_color: &LightColor, leds: &HashMap<LightColor, LED>) {
-//     &leds[&LightColor::Red].off();
-//     &leds[&LightColor::Yellow].off();
-//     &leds[&LightColor::Green].off();
-//     &leds[light_color].on();
-// }
+fn update_stoplight(light_color: &LightColor, leds: &HashMap<LightColor, LED>) {
+    &leds[&LightColor::Red].off();
+    &leds[&LightColor::Yellow].off();
+    &leds[&LightColor::Green].off();
+    &leds[light_color].on();
+}
