@@ -27,7 +27,7 @@ A board of 3 relays designed for the Raspberry Pi.  Since the Raspberry Pi is _D
 
 ![Stoplight](https://i.imgur.com/gvF9zIL.jpg)
 
-A classic Red/Amber/Green traffic light with 8" lenses, wired for a household 120V outlet.  I nabbed this bad-boy from Ebay for the small price of $145, plus $100 shipping and handling.  Ironically, this was the easiest component to get ahold of.  I just needed a stoplight that was (1) wired for regular 120V outlets and (2) did _not_ come installed with any traffic timers installed, since I would just be replacing this with the Raspberry Pi.
+A classic Red/Amber/Green traffic light with 8" lenses, wired for a household 120V outlet.  I nabbed this bad-boy from Ebay for the small price of $145, plus $100 shipping and handling.  Ironically, this was the easiest component to get ahold of.  I just needed a stoplight that was (1) wired for regular 120V outlets and (2) did _not_ come with any traffic timers installed, since I would just be replacing this with the Raspberry Pi.
 
 # Construction
 
